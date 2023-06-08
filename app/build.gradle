@@ -55,5 +55,5 @@ dependencies {
 
     // implementation 'com.iqiyi.xcrash:xcrash-android-lib:2.4.5' // 可以保存崩溃信息
     implementation project(':camera_ui')
-    implementation files('libs/easyedge-sdk.jar')
+    implementation project(':easyedge')
 }

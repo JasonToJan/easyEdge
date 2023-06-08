@@ -72,7 +72,7 @@ public class TestInferDetectionTask extends BaseTestTask<Void, CharSequence, Cha
             }
 
             return RESULT_FIN;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             pError(e);
             return genErrStr("ERROR: " + e.getMessage());
         }

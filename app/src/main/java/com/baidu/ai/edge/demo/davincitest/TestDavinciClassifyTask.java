@@ -68,7 +68,7 @@ public class TestDavinciClassifyTask extends BaseTestTask<Void, CharSequence, Ch
             }
 
             return RESULT_FIN;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             pError(e);
             return genErrStr("ERROR: " + e.getMessage());
         }

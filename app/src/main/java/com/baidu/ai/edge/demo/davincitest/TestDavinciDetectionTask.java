@@ -72,7 +72,7 @@ public class TestDavinciDetectionTask extends BaseTestTask<Void, CharSequence, C
             }
 
             return RESULT_FIN;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             pError(e);
             return genErrStr("ERROR: " + e.getMessage());
         }

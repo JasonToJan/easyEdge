@@ -163,10 +163,52 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        /* 从infer/读配置 */
-        String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
-                Consts.ASSETS_DIR_ARM + "/conf.json");
-        if (!TextUtils.isEmpty(confJson)) {
+        try {
+            /* 从infer/读配置 */
+            String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
+                    Consts.ASSETS_DIR_ARM + "/conf.json");
+            if (!TextUtils.isEmpty(confJson)) {
+                try {
+                    JSONObject confObj = new JSONObject(confJson);
+                    modelName = confObj.optString("modelName", "");
+
+                    String str = confObj.optString("soc", Consts.SOC_ARM);
+                    String[] socs = str.split(",");
+                    socList.addAll(Arrays.asList(socs));
+
+                    modelType = confObj.getInt("modelType");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
+                        Consts.ASSETS_DIR_ARM + "/infer_cfg.json");
+                try {
+                    JSONObject confObj = new JSONObject(confJson);
+                    socList.add(Consts.SOC_ARM);
+                    modelType = confObj.getJSONObject("model_info").getInt("model_kind");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            Log.i(TAG, "Initialized by arm#*.json");
+        } catch (Throwable e) {
+
+        }
+
+
+    }
+
+    /**
+     * 原有的
+     */
+    private boolean initConfigFromDemoConfig() {
+
+        try {
+            String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(), "demo/config.json");
+            if (TextUtils.isEmpty(confJson)) {
+                return false;
+            }
             try {
                 JSONObject confObj = new JSONObject(confJson);
                 modelName = confObj.optString("modelName", "");
@@ -179,40 +221,10 @@ public class MainActivity extends BaseActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        } else {
-            confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
-                    Consts.ASSETS_DIR_ARM + "/infer_cfg.json");
-            try {
-                JSONObject confObj = new JSONObject(confJson);
-                socList.add(Consts.SOC_ARM);
-                modelType = confObj.getJSONObject("model_info").getInt("model_kind");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        Log.i(TAG, "Initialized by arm#*.json");
-    }
+        } catch (Throwable e) {
 
-    /**
-     * 原有的
-     */
-    private boolean initConfigFromDemoConfig() {
-        String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(), "demo/config.json");
-        if (TextUtils.isEmpty(confJson)) {
-            return false;
         }
-        try {
-            JSONObject confObj = new JSONObject(confJson);
-            modelName = confObj.optString("modelName", "");
 
-            String str = confObj.optString("soc", Consts.SOC_ARM);
-            String[] socs = str.split(",");
-            socList.addAll(Arrays.asList(socs));
-
-            modelType = confObj.getInt("modelType");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         return true;
     }
 
@@ -220,25 +232,30 @@ public class MainActivity extends BaseActivity {
      * 开放模型
      */
     private boolean initConfigFromDemoConf() {
-        String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(), "demo/conf.json");
-        if (TextUtils.isEmpty(confJson)) {
-            return false;
-        }
         try {
-            JSONObject confObj = new JSONObject(confJson);
-            modelName = confObj.optString("modelName", "");
-            socList.add(Consts.SOC_ARM);
-
-            String inferCfgJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
-                    Consts.ASSETS_DIR_ARM + "/infer_cfg.json");
-            if (TextUtils.isEmpty(inferCfgJson)) {
+            String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(), "demo/conf.json");
+            if (TextUtils.isEmpty(confJson)) {
                 return false;
             }
-            JSONObject inferCfgObj = new JSONObject(inferCfgJson);
-            modelType = inferCfgObj.getJSONObject("model_info").getInt("model_kind");
-        } catch (JSONException e) {
-            e.printStackTrace();
+            try {
+                JSONObject confObj = new JSONObject(confJson);
+                modelName = confObj.optString("modelName", "");
+                socList.add(Consts.SOC_ARM);
+
+                String inferCfgJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
+                        Consts.ASSETS_DIR_ARM + "/infer_cfg.json");
+                if (TextUtils.isEmpty(inferCfgJson)) {
+                    return false;
+                }
+                JSONObject inferCfgObj = new JSONObject(inferCfgJson);
+                modelType = inferCfgObj.getJSONObject("model_info").getInt("model_kind");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } catch (Throwable e) {
+
         }
+
         return true;
     }
 }

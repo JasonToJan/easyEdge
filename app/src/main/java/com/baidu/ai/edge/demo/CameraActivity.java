@@ -333,8 +333,8 @@ public class CameraActivity extends MainActivity {
 
     }
 
-    private void showError(BaseException e) {
-        showMessage(e.getErrorCode(), e.getMessage());
+    private void showError(Throwable e) {
+        showMessage(100, e.getMessage());
         Log.e("CameraActivity", e.getMessage(), e);
     }
 
@@ -471,7 +471,7 @@ public class CameraActivity extends MainActivity {
 
                 canAutoRun = true;
                 isInitializing = true;
-            } catch (BaseException e) {
+            } catch (Throwable e) {
                 showError(e);
             }
         }
@@ -518,9 +518,9 @@ public class CameraActivity extends MainActivity {
 
                 canAutoRun = true;
                 isInitializing = true;
-            } catch (BaseException e) {
+            } catch (Throwable e) {
                 showError(e);
-                Log.e("CameraActivity", e.getClass().getSimpleName() + ":" + e.getErrorCode() + ":" + e.getMessage());
+                Log.e("CameraActivity", e.getClass().getSimpleName() + ":"  + ":" + e.getMessage());
             }
         }
 
@@ -548,7 +548,7 @@ public class CameraActivity extends MainActivity {
 
                 canAutoRun = true;
                 isInitializing = true;
-            } catch (BaseException e) {
+            } catch (Throwable e) {
                 showError(e);
             }
         }
@@ -556,7 +556,8 @@ public class CameraActivity extends MainActivity {
         setConfidence(threshold);
     }
 
-    private float initInfer() throws BaseException {
+    private float initInfer() throws Throwable {
+
         InferConfig mInferConfig = new InferConfig(getAssets(),
                 "infer");
         mInferConfig.setThread(Util.getInferCores());

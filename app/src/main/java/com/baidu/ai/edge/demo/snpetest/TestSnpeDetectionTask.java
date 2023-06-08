@@ -72,7 +72,7 @@ public class TestSnpeDetectionTask extends BaseTestTask<Void, CharSequence, Char
             }
 
             return RESULT_FIN;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             pError(e);
             return genErrStr("ERROR: " + e.getMessage()
                     + "\nAvailable runtime: " + SnpeManager.getAvailableRuntimes(context).toString());
