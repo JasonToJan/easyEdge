@@ -7,6 +7,8 @@ package com.baidu.ai.edge.core.base;
 
 import android.content.res.AssetManager;
 import android.text.TextUtils;
+import android.util.Log;
+
 import com.baidu.ai.edge.core.util.FileUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,6 +135,7 @@ public abstract class BaseConfig implements IBaseConfig {
 					String var20 = var24;
 
 					try {
+						Log.e("TEST##", "BaseConfig...110");
 						this.a(var4, var19, var20, var6);
 						return;
 					} catch (CallException var9) {
@@ -140,7 +143,7 @@ public abstract class BaseConfig implements IBaseConfig {
 						var10001 = false;
 					}
 				}
-
+				Log.e("TEST##", "BaseConfig...113");
 				var18 = var10000;
 				throw new CallException(1001, "config read asset file error " + var2, (Throwable)var18);
 			}
@@ -373,6 +376,7 @@ public abstract class BaseConfig implements IBaseConfig {
 		JSONObject var5 = null;
 		JSONObject var6 = null;
 		if (!TextUtils.isEmpty(var4)) {
+
 			if (!TextUtils.isEmpty(var1)) {
 				var5 = this.a(var1);
 			}
@@ -395,16 +399,19 @@ public abstract class BaseConfig implements IBaseConfig {
 
 			var5 = this.a(var1);
 		}
-
+		Log.e("TEST##", "BaseConfig...101");
 		BaseConfig var10 = this;
 		JSONObject var10001 = var5;
 		JSONObject var10002 = var6;
 		this.d(var2);
+		Log.e("TEST##", "BaseConfig...102");
 		this.c(var3);
+		Log.e("TEST##", "BaseConfig...111");
 
 		try {
 			var10.a(var10001, var10002);
 		} catch (JSONException var7) {
+			Log.e("TEST##", "BaseConfig...112");
 			throw new CallException(1001, "parse JsonError ", var7);
 		}
 	}
@@ -437,7 +444,9 @@ public abstract class BaseConfig implements IBaseConfig {
 	}
 
 	private void d(String var1) throws CallException {
+		Log.e("TEST##", "BaseConfig...101.5");
 		this.v = new d(var1, this.i, this.f);
+		Log.e("TEST##", "BaseConfig...101.6");
 	}
 
 	public boolean isOptModel() {

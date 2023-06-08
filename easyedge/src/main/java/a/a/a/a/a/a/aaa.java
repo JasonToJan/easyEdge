@@ -37,7 +37,9 @@ public class aaa {
 	private BaseConfig j;
 
 	public aaa(Context var1, @NonNull ISDKJni var2, BaseConfig var3, String var4) {
+		Log.e("TEST##", "aaa...118"+" var4="+var4);
 		if (var4 != null && !var4.isEmpty()) {
+			Log.e("TEST##", "aaa...118.1");
 			aaa var10000 = this;
 			Context var10001 = var1;
 			aaa var10002 = this;
@@ -46,10 +48,11 @@ public class aaa {
 			this.g = var1;
 			this.i = var2;
 			this.d = var4;
+			Log.e("TEST##", "aaa...119");
 			this.e = var3.getMid();
 			this.f = var3.getRid();
 			this.h = var3.getProduct();
-
+			Log.e("TEST##", "aaa...120");
 			try {
 				var10002.b = bbb.a(var10003, "start");
 				var10000.c = bbb.a(var10001, "infer");

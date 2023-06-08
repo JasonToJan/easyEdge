@@ -47,7 +47,8 @@ public final class ActivateManager {
 
 	public com.baidu.ai.edge.core.base.JniParam fillCommonAuthParam(java.lang.String s) {return null;  }
 
-	public java.lang.String activate(java.lang.String s, int i, boolean b) throws java.io.IOException, com.baidu.ai.edge.core.base.CallException, com.baidu.ai.edge.core.base.BaseException { return null;  }
+	public java.lang.String activate(java.lang.String s, int i, boolean b) throws java.io.IOException, com.baidu.ai.edge.core.base.CallException, com.baidu.ai.edge.core.base.BaseException {
+		return "1234455";  }
 
 	private class c implements java.lang.Runnable {
 		private  java.lang.String a;

@@ -76,13 +76,18 @@ public abstract class BaseManager {
 	}
 
 	private String a(String var1, boolean var2) throws IOException, BaseException {
+
 		if (this instanceof InferManager) {
+			Log.e("TEST##", "BaseManager....1");
 			return this.a.activate(var1, 100, var2);
 		} else if (this instanceof SnpeManager) {
+			Log.e("TEST##", "BaseManager....2");
 			return this.a.activate(var1, 101, var2);
 		} else if (this instanceof DDKManager) {
+			Log.e("TEST##", "BaseManager....3");
 			return this.a.activate(var1, 102, var2);
 		} else {
+			Log.e("TEST##", "BaseManager....4");
 			return this instanceof DavinciManager ? this.a.activate(var1, 104, var2) : null;
 		}
 	}

@@ -49,11 +49,11 @@ public class d {
 				var10001 = false;
 				break label383;
 			}
-
-			JSONObject var61 = var64;
+			Log.e("TEST##", "BaseConfig...101.7"+var1);
+			JSONObject var61;
 
 			try {
-				var64 = new JSONObject(var1);
+				var61 = new JSONObject(var1);
 			} catch (JSONException var56) {
 				var63 = var56;
 				var10001 = false;
@@ -76,7 +76,6 @@ public class d {
 					var10001 = false;
 					break label383;
 				}
-
 				var59 = var65;
 				if (var65 != null) {
 					try {
@@ -142,7 +141,7 @@ public class d {
 					var10001 = false;
 					break label383;
 				}
-
+				Log.e("TEST##", "BaseConfig...101.9");
 				if (var3 == 102) {
 					try {
 						this.g = "keep_ratio";
