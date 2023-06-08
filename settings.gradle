@@ -1,0 +1,32 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.scijava.org/content/repositories/public'}
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        // OPTIONAL If you want to use SNAPSHOT version, sonatype repository is required.
+        maven { url 'https://oss.sonatype.org/content/repositories/public' }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.scijava.org/content/repositories/public'}
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        // OPTIONAL If you want to use SNAPSHOT version, sonatype repository is required.
+        maven { url 'https://oss.sonatype.org/content/repositories/public' }
+    }
+}
+
+include ':app', ':camera_ui'
+include ':test'
