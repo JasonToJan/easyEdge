@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.ddk;
 
 import android.content.Context;
@@ -12,7 +7,9 @@ import android.os.Build;
 import android.util.Log;
 import com.baidu.ai.edge.core.base.BaseException;
 import com.baidu.ai.edge.core.base.BaseManager;
+import com.baidu.ai.edge.core.base.BaseResultModel;
 import com.baidu.ai.edge.core.base.CallException;
+import com.baidu.ai.edge.core.base.Consts;
 import com.baidu.ai.edge.core.base.IStatisticsResultModel;
 import com.baidu.ai.edge.core.base.JniParam;
 import com.baidu.ai.edge.core.base.e;
@@ -26,175 +23,184 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DDKManager extends BaseManager implements ClassifyInterface, DetectInterface {
-	private int h;
-	private DDKConfig i;
+    private int h = 0;
+    private DDKConfig i;
 
-	public DDKManager(Context var1, DDKConfig var2, String var3) throws BaseException {
-		super(var1, new DDKJni(), var2, var3);
-		this.h = 0;
-		this.i = var2;
-		if (DDKJni.a() != null) {
-			this.h = -1;
-		} else {
-			this.loadModelFromAssets(super.d);
-			Log.i("DDKManager", "Build.HARDWARE: " + Build.HARDWARE);
-			this.h = 2;
-		}
-	}
+    public DDKManager(Context context, DDKConfig dDKConfig, String str) throws BaseException {
+        super(context, new DDKJni(), dDKConfig, str);
+        int i;
+        this.i = dDKConfig;
+        if (DDKJni.a() != null) {
+            i = -1;
+        } else {
+            loadModelFromAssets(this.d);
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Build.HARDWARE: ");
+            stringBuilder.append(Build.HARDWARE);
+            Log.i("DDKManager", stringBuilder.toString());
+            i = 2;
+        }
+        this.h = i;
+    }
 
-	private List<ClassificationResultModel> a(float[] var1) throws BaseException {
-		return DDKJni.runMixModelSync(new DDKModelInfo(this.i.getImageHeight(), this.i.getImageWidth(), this.i.getCateNum()), var1);
-	}
+    private List<ClassificationResultModel> a(float[] fArr) throws BaseException {
+        return DDKJni.runMixModelSync(new DDKModelInfo(this.i.getImageHeight(), this.i.getImageWidth(), this.i.getCateNum()), fArr);
+    }
 
-	private List<DetectionResultModel> d(Bitmap var1, float var2, e var3) throws BaseException {
-		TimerRecorder.start();
-		float[] var4 = DDKJni.getPixels(ImageUtil.resize(var1, this.i.getImageWidth(), this.i.getImageHeight()), this.i.getImgMeans(), this.i.getScales(), this.i.isHWC(), this.i.isRGB());
-		DDKModelInfo var5;
-		DDKModelInfo var10000 = var5 = new DDKModelInfo(this.i.getImageHeight(), this.i.getImageWidth(), this.i.getCateNum());
-		float[] var10001 = var4;
-		Bitmap var10002 = var1;
-		int var19 = var1.getWidth();
-		int var20 = var10002.getHeight();
-		TimerRecorder.start();
-		long var21 = TimerRecorder.end();
-		Log.i("DDKManager", "[stat] detect preprocessTime time:" + var21);
-		TimerRecorder.start();
-		float[] var7 = DDKJni.runMixModelDetectSync(var10000, var10001);
-		long var8 = TimerRecorder.end();
-		Log.i("DDKManager", "[stat] forwardTime time:" + var8);
-		TimerRecorder.start();
-		ArrayList var10;
-		var10 = new ArrayList();
+    private List<ClassificationResultModel> c(Bitmap bitmap, float f, e eVar) throws BaseException {
+        if (this.h == 2) {
+            TimerRecorder.start();
+            float[] pixels = DDKJni.getPixels(ImageUtil.resize(bitmap, this.i.getImageWidth(), this.i.getImageHeight()), this.i.getImgMeans(), this.i.getScales(), this.i.isHWC(), this.i.isRGB());
+            long end = TimerRecorder.end();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("[stat] preprocess time:");
+            stringBuilder.append(end);
+            String str = "DDKManager";
+            Log.i(str, stringBuilder.toString());
+            TimerRecorder.start();
+            List a = a(pixels);
+            long end2 = TimerRecorder.end();
+            stringBuilder = new StringBuilder();
+            stringBuilder.append("[stat] forward time:");
+            stringBuilder.append(end2);
+            Log.i(str, stringBuilder.toString());
+            TimerRecorder.start();
+            List<ClassificationResultModel> arrayList = new ArrayList();
+            for (int i = 0; i < a.size(); i++) {
+                ClassificationResultModel classificationResultModel = (ClassificationResultModel) a.get(i);
+                if (classificationResultModel.getConfidence() >= f) {
+                    classificationResultModel.setLabel(this.i.getLabels()[classificationResultModel.getLabelIndex()]);
+                    arrayList.add(classificationResultModel);
+                }
+            }
+            long end3 = TimerRecorder.end();
+            if (eVar != null) {
+                eVar.setPreprocessTime(end);
+                eVar.setForwardTime(end2);
+                eVar.setPostprocessTime(end3);
+                eVar.setResultModel(arrayList);
+            }
+            c();
+            return arrayList;
+        }
+        throw DDKJni.a();
+    }
 
-		for(int var11 = 0; var11 < var7.length; var11 += 6) {
-			float var12;
-			if (!((var12 = var7[var11 + 4]) < var2)) {
-				float var13;
-				int var14 = (int)(var7[var11] * (var13 = (float)var19));
-				float var15;
-				int var16 = (int)(var7[var11 + 1] * (var15 = (float)var20));
-				int var22 = (int)(var7[var11 + 2] * var13);
-				int var24 = (int)(var7[var11 + 3] * var15);
-				Rect var17;
-				var17 = new Rect(var14, var16, var22, var24);
-				var22 = (int)var7[var11 + 5];
-				DetectionResultModel var23;
-				DetectionResultModel var25 = var23 = new DetectionResultModel();
-				var23.setBounds(var17);
-				var23.setConfidence(var12);
-				var23.setLabelIndex(var22);
-				var25.setLabel(this.i.getLabels()[var22]);
-				var10.add(var25);
-			}
-		}
+    private List<DetectionResultModel> d(Bitmap bitmap, float f, e eVar) throws BaseException {
+        e eVar2 = eVar;
+        TimerRecorder.start();
+        float[] pixels = DDKJni.getPixels(ImageUtil.resize(bitmap, this.i.getImageWidth(), this.i.getImageHeight()), this.i.getImgMeans(), this.i.getScales(), this.i.isHWC(), this.i.isRGB());
+        DDKModelInfo dDKModelInfo = new DDKModelInfo(this.i.getImageHeight(), this.i.getImageWidth(), this.i.getCateNum());
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        TimerRecorder.start();
+        long end = TimerRecorder.end();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("[stat] detect preprocessTime time:");
+        stringBuilder.append(end);
+        String str = "DDKManager";
+        Log.i(str, stringBuilder.toString());
+        TimerRecorder.start();
+        pixels = DDKJni.runMixModelDetectSync(dDKModelInfo, pixels);
+        long end2 = TimerRecorder.end();
+        StringBuilder stringBuilder2 = new StringBuilder();
+        stringBuilder2.append("[stat] forwardTime time:");
+        stringBuilder2.append(end2);
+        Log.i(str, stringBuilder2.toString());
+        TimerRecorder.start();
+        List<DetectionResultModel> arrayList = new ArrayList();
+        int i = 0;
+        while (i < pixels.length) {
+            int i2;
+            float f2 = pixels[i + 4];
+            if (f2 < f) {
+                i2 = height;
+            } else {
+                float f3 = (float) width;
+                float f4 = (float) height;
+                i2 = height;
+                Rect rect = new Rect((int) (pixels[i] * f3), (int) (pixels[i + 1] * f4), (int) (f3 * pixels[i + 2]), (int) (f4 * pixels[i + 3]));
+                int i3 = (int) pixels[i + 5];
+                DetectionResultModel detectionResultModel = new DetectionResultModel();
+                detectionResultModel.setBounds(rect);
+                detectionResultModel.setConfidence(f2);
+                detectionResultModel.setLabelIndex(i3);
+                detectionResultModel.setLabel(this.i.getLabels()[i3]);
+                arrayList.add(detectionResultModel);
+            }
+            i += 6;
+            height = i2;
+        }
+        long end3 = TimerRecorder.end();
+        if (eVar2 != null) {
+            eVar2.setPreprocessTime(end);
+            eVar2.setForwardTime(end2);
+            eVar2.setPostprocessTime(end3);
+            eVar2.setResultModel(arrayList);
+        }
+        return arrayList;
+    }
 
-		long var18 = TimerRecorder.end();
-		if (var3 != null) {
-			var3.setPreprocessTime(var21);
-			var3.setForwardTime(var8);
-			var3.setPostprocessTime(var18);
-			var3.setResultModel(var10);
-		}
+    protected float[] a(Bitmap bitmap, JniParam jniParam, int i) {
+        return new float[0];
+    }
 
-		return var10;
-	}
+    public List<ClassificationResultModel> classify(Bitmap bitmap) throws BaseException {
+        return classify(bitmap, this.i.getRecommendedConfidence());
+    }
 
-	private List<ClassificationResultModel> c(Bitmap var1, float var2, e var3) throws BaseException {
-		if (this.h == 2) {
-			TimerRecorder.start();
-			float[] var10001 = DDKJni.getPixels(ImageUtil.resize(var1, this.i.getImageWidth(), this.i.getImageHeight()), this.i.getImgMeans(), this.i.getScales(), this.i.isHWC(), this.i.isRGB());
-			long var4 = TimerRecorder.end();
-			Log.i("DDKManager", "[stat] preprocess time:" + var4);
-			TimerRecorder.start();
-			List var11 = this.a(var10001);
-			long var6 = TimerRecorder.end();
-			Log.i("DDKManager", "[stat] forward time:" + var6);
-			TimerRecorder.start();
-			ArrayList var8;
-			var8 = new ArrayList();
+    public List<ClassificationResultModel> classify(Bitmap bitmap, float f) throws BaseException {
+        return c(bitmap, f, null);
+    }
 
-			for(int var9 = 0; var9 < var11.size(); ++var9) {
-				ClassificationResultModel var10;
-				if (!((var10 = (ClassificationResultModel)var11.get(var9)).getConfidence() < var2)) {
-					var10.setLabel(this.i.getLabels()[var10.getLabelIndex()]);
-					var8.add(var10);
-				}
-			}
+    public IStatisticsResultModel classifyPro(Bitmap bitmap) throws BaseException {
+        e eVar = new e();
+        c(bitmap, this.i.getRecommendedConfidence(), eVar);
+        return eVar;
+    }
 
-			long var12 = TimerRecorder.end();
-			if (var3 != null) {
-				var3.setPreprocessTime(var4);
-				var3.setForwardTime(var6);
-				var3.setPostprocessTime(var12);
-				var3.setResultModel(var8);
-			}
+    public void destroy() throws BaseException {
+        int unloadMixModelSync = DDKJni.unloadMixModelSync();
+        DDKJni.deactivateInstance(this.b);
+        if (unloadMixModelSync == 0) {
+            super.destroy();
+            return;
+        }
+        throw new BaseException(Consts.EC_UNLOAD_DDK_MODEL_FAIL, "卸载DDK模型失败");
+    }
 
-			this.c();
-			return var8;
-		} else {
-			throw DDKJni.a();
-		}
-	}
+    public List<DetectionResultModel> detect(Bitmap bitmap) throws BaseException {
+        return detect(bitmap, this.i.getRecommendedConfidence());
+    }
 
-	public void loadModelFromAssets(String var1) throws BaseException {
-		JniParam var2 = this.b();
-		if (this.i.getModelFileAssetPath() != null) {
-			var2.put("modelFileAssetPath", this.i.getModelFileAssetPath());
-			Log.i("DDKManager", "load 200 model file: " + this.i.getModelFileAssetPath());
-			Context var10000 = super.b;
-			if (DDKJni.loadMixModelSync(var10000, var10000.getAssets(), var2) != 0) {
-				throw new BaseException(3001, "加载DDK模型文件失败");
-			}
-		} else {
-			throw new BaseException(3001, "该模型在您的设备上不可用");
-		}
-	}
+    public List<DetectionResultModel> detect(Bitmap bitmap, float f) throws BaseException {
+        return d(bitmap, f, null);
+    }
 
-	public List<DetectionResultModel> detect(Bitmap var1, float var2) throws BaseException {
-		return this.d(var1, var2, (e)null);
-	}
+    public IStatisticsResultModel detectPro(Bitmap bitmap) throws BaseException {
+        e eVar = new e();
+        d(bitmap, this.i.getRecommendedConfidence(), eVar);
+        return eVar;
+    }
 
-	public List<DetectionResultModel> detect(Bitmap var1) throws BaseException {
-		return this.detect(var1, this.i.getRecommendedConfidence());
-	}
+    protected void e() throws CallException {
+        DDKJni.b();
+    }
 
-	protected float[] a(Bitmap var1, JniParam var2, int var3) {
-		return new float[0];
-	}
-
-	public IStatisticsResultModel detectPro(Bitmap var1) throws BaseException {
-		e var2;
-		e var10000 = var2 = new e();
-		this.d(var1, this.i.getRecommendedConfidence(), var2);
-		return var10000;
-	}
-
-	protected void e() throws CallException {
-		DDKJni.b();
-	}
-
-	public void destroy() throws BaseException {
-		int var10000 = DDKJni.unloadMixModelSync();
-		DDKJni.deactivateInstance(super.b);
-		if (var10000 == 0) {
-			super.destroy();
-		} else {
-			throw new BaseException(3002, "卸载DDK模型失败");
-		}
-	}
-
-	public List<ClassificationResultModel> classify(Bitmap var1) throws BaseException {
-		return this.classify(var1, this.i.getRecommendedConfidence());
-	}
-
-	public List<ClassificationResultModel> classify(Bitmap var1, float var2) throws BaseException {
-		return this.c(var1, var2, (e)null);
-	}
-
-	public IStatisticsResultModel classifyPro(Bitmap var1) throws BaseException {
-		e var2;
-		e var10000 = var2 = new e();
-		this.c(var1, this.i.getRecommendedConfidence(), var2);
-		return var10000;
-	}
+    public void loadModelFromAssets(String str) throws BaseException {
+        JniParam b = b();
+        if (this.i.getModelFileAssetPath() != null) {
+            b.put("modelFileAssetPath", this.i.getModelFileAssetPath());
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("load 200 model file: ");
+            stringBuilder.append(this.i.getModelFileAssetPath());
+            Log.i("DDKManager", stringBuilder.toString());
+            Context context = this.b;
+            if (DDKJni.loadMixModelSync(context, context.getAssets(), b) != 0) {
+                throw new BaseException(Consts.EC_LOAD_DDK_MODEL_FAIL, "加载DDK模型文件失败");
+            }
+            return;
+        }
+        throw new BaseException(Consts.EC_LOAD_DDK_MODEL_FAIL, "该模型在您的设备上不可用");
+    }
 }

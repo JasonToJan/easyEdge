@@ -1,14 +1,11 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.base;
 
-import a.a.a.a.a.a.aaa;
+import a.a.a.a.a.a.a;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
@@ -20,6 +17,7 @@ import com.baidu.ai.edge.core.ddk.DDKManager;
 import com.baidu.ai.edge.core.ddk.DavinciManager;
 import com.baidu.ai.edge.core.detect.DetectionResultModel;
 import com.baidu.ai.edge.core.infer.InferManager;
+import com.baidu.ai.edge.core.pose.PoseResultModel;
 import com.baidu.ai.edge.core.snpe.SnpeManager;
 import com.baidu.ai.edge.core.util.ImageUtil;
 import com.baidu.ai.edge.core.util.TimeRecorderNew;
@@ -28,355 +26,312 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseManager {
-	public static final String VERSION = "0.10.7";
-	protected ActivateManager a;
-	protected Context b;
-	protected BaseConfig c;
-	protected String d;
-	private aaa e;
-	protected String f;
-	private boolean g = false;
+    public static final String VERSION = "0.10.7";
+    protected ActivateManager a;
+    protected Context b;
+    protected BaseConfig c;
+    protected String d;
+    private a e;
+    protected String f;
+    private boolean g = false;
 
-	public BaseManager(Context var1, ISDKJni var2, BaseConfig var3, String var4) throws CallException {
-		this.a(var1);
-		this.c = var3;
-		this.d = var4;
-		this.f = this.getClass().getSimpleName();
-		boolean var5;
-		if (var5 = this.d()) {
-			this.d = null;
-		} else if (var4 == null) {
-			Log.e("BaseManager", "serial number is NULL");
-			throw new CallException(5004, "serial number is NULL");
-		}
+    public BaseManager(Context context, ISDKJni iSDKJni, BaseConfig baseConfig, String str) throws CallException {
+        a(context);
+        this.c = baseConfig;
+        this.d = str;
+        this.f = getClass().getSimpleName();
+        boolean d = d();
+        String str2 = "BaseManager";
+        if (d) {
+            this.d = null;
+        } else if (str == null) {
+            String str3 = "serial number is NULL";
+            Log.e(str2, str3);
+            throw new CallException(Consts.EC_OFFLINE_SERIAL_NULL_ERROR, str3);
+        }
+        this.b = context;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("new Manager with ");
+        stringBuilder.append(baseConfig.getMid());
+        stringBuilder.append(" ");
+        stringBuilder.append(baseConfig.getRid());
+        Log.i(str2, stringBuilder.toString());
+        this.a = new ActivateManager(context, baseConfig);
+        e();
+        try {
+            str = a(str, d);
+            if (baseConfig.getRid() != -1 && baseConfig.getMid() != -1 && baseConfig.getModelEncValue() != 1200) {
+                this.e = new a(context, iSDKJni, baseConfig, str);
+                this.e.c();
+            }
+        } catch (Exception e) {
+            throw new CallException(Consts.EC_OFFLINE_AUTH_ERROR, e.getMessage(), e.getCause());
+        }
+    }
 
-		BaseManager var10001 = this;
-		String var10002 = var4;
-		boolean var10003 = var5;
-		this.b = var1;
-		Log.i("BaseManager", "new Manager with " + var3.getMid() + " " + var3.getRid());
-		this.a = new ActivateManager(var1, var3);
-		this.e();
+    private String a(String str, boolean z) throws IOException, BaseException {
+        ActivateManager activateManager;
+        int i;
+        if (this instanceof InferManager) {
+            activateManager = this.a;
+            i = 100;
+        } else if (this instanceof SnpeManager) {
+            activateManager = this.a;
+            i = 101;
+        } else if (this instanceof DDKManager) {
+            activateManager = this.a;
+            i = 102;
+        } else if (!(this instanceof DavinciManager)) {
+            return null;
+        } else {
+            activateManager = this.a;
+            i = 104;
+        }
+        return activateManager.activate(str, i, z);
+    }
 
-		String var9;
-		try {
-			var9 = var10001.a(var10002, var10003);
-		} catch (Exception var6) {
-			String var7 = var6.getMessage();
-			Throwable var8 = var6.getCause();
-			throw new CallException(5003, var7, var8);
-		}
+    private void a(Context context) throws CallException {
+        String[] strArr = new String[]{"android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.INTERNET", "android.permission.ACCESS_NETWORK_STATE", "android.permission.READ_PHONE_STATE"};
+        int length = strArr.length;
+        int i = 0;
+        while (i < length) {
+            String str = strArr[i];
+            if (ContextCompat.checkSelfPermission(context, str) == 0) {
+                i++;
+            } else {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("Please allow permission:");
+                stringBuilder.append(str);
+                throw new CallException(1003, stringBuilder.toString());
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
+            throw new CallException(1003, "Please allow all files access:");
+        }
+    }
 
-		var4 = var9;
-		if (var3.getRid() != -1 && var3.getMid() != -1 && var3.getModelEncValue() != 1200) {
-			this.e = new aaa(var1, var2, var3, var4);
-			this.e.c();
-		}
+    protected JniParam a(Bitmap bitmap, int i, float f, int[] iArr) {
+        JniParam jniParam = new JniParam();
+        jniParam.put("product", this.c.j);
+        jniParam.put("originWidth", (long) bitmap.getWidth());
+        jniParam.put("originHeight", (long) bitmap.getHeight());
+        jniParam.put("preprocessObj", a(bitmap, iArr, i));
+        jniParam.put("modelType", (long) i);
+        jniParam.put("nType", (long) this.c.getNType());
+        jniParam.put("confidence", Float.valueOf(f));
+        jniParam.put("extraDetection", this.c.getExtraDetectionJson());
+        jniParam.put("classNum", (long) this.c.getLabels().length);
+        return jniParam;
+    }
 
-	}
+    protected JniParam a(Bitmap bitmap, int[] iArr, int i) {
+        Pair calcWithStep;
+        d preprocessConfig = this.c.getPreprocessConfig();
+        BaseConfig baseConfig = this.c;
+        if (i == 100) {
+            calcWithStep = ImageUtil.calcWithStep(bitmap, baseConfig.getMaxSize(), 32);
+        } else {
+            if (!(baseConfig.getNType() == 102 || this.c.getNType() == 900102 || this.c.getNType() == Consts.NTYPE_MRCNN_R50_VD_FPN)) {
+                if (!"keep_ratio".equalsIgnoreCase(this.c.getPreprocessConfig().r())) {
+                    if (this.c.getNType() == 11002) {
+                        calcWithStep = ImageUtil.calcShrinkSize(bitmap.getWidth(), bitmap.getHeight());
+                    } else {
+                        calcWithStep = "keep_ratio2".equalsIgnoreCase(preprocessConfig.r()) ? ImageUtil.calcTargetSizeForKeepRatio2(bitmap, preprocessConfig.q(), preprocessConfig.p()) : null;
+                    }
+                }
+            }
+            calcWithStep = ImageUtil.calcTarget(bitmap, preprocessConfig.t(), preprocessConfig.g());
+        }
+        int q = preprocessConfig.q();
+        int p = preprocessConfig.p();
+        if (calcWithStep != null) {
+            q = ((Integer) calcWithStep.first).intValue();
+            p = ((Integer) calcWithStep.second).intValue();
+        }
+        if (iArr != null) {
+            iArr[0] = preprocessConfig.u() ? preprocessConfig.q() : q;
+            iArr[1] = preprocessConfig.u() ? preprocessConfig.p() : p;
+        }
+        JniParam a = com.baidu.ai.edge.core.base.b.a(preprocessConfig, q, p);
+        if (i == 100) {
+            a.put("ocrRecWidth", (long) preprocessConfig.j());
+            a.put("ocrRecHeight", (long) preprocessConfig.i());
+            a.put("ocrRecBatchNum", (long) preprocessConfig.h());
+        }
+        return a;
+    }
 
-	private String a(String var1, boolean var2) throws IOException, BaseException {
+    protected c a(Bitmap bitmap, float f, IStatisticsResultModel iStatisticsResultModel, int i, int[] iArr) throws BaseException {
+        a();
+        String str = this.f;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("predict ");
+        stringBuilder.append(i);
+        stringBuilder.append(": confidence: ");
+        stringBuilder.append(f);
+        Log.i(str, stringBuilder.toString());
+        TimeRecorderNew timeRecorderNew = new TimeRecorderNew();
+        JniParam a = a(bitmap, i, f, iArr);
+        c cVar = new c(a(bitmap, a, i));
+        long j = a.getLong("preprocessEndTime");
+        String str2 = "extraNetFlag";
+        if (a.containsKey(str2)) {
+            cVar.a((int) a.getLong(str2));
+        }
+        long checkpoint = timeRecorderNew.checkpoint(j);
+        String str3 = this.f;
+        stringBuilder = new StringBuilder();
+        stringBuilder.append("[stat]preprocess time: ");
+        stringBuilder.append(checkpoint);
+        Log.i(str3, stringBuilder.toString());
+        long end = timeRecorderNew.end();
+        str3 = this.f;
+        StringBuilder stringBuilder2 = new StringBuilder();
+        stringBuilder2.append("[stat]forward time: ");
+        stringBuilder2.append(end);
+        Log.i(str3, stringBuilder2.toString());
+        if (iStatisticsResultModel != null) {
+            iStatisticsResultModel.setPreprocessTime(checkpoint);
+            iStatisticsResultModel.setForwardTime(end);
+        }
+        c();
+        return cVar;
+    }
 
-		if (this instanceof InferManager) {
-			Log.e("TEST##", "BaseManager....1");
-			return this.a.activate(var1, 100, var2);
-		} else if (this instanceof SnpeManager) {
-			Log.e("TEST##", "BaseManager....2");
-			return this.a.activate(var1, 101, var2);
-		} else if (this instanceof DDKManager) {
-			Log.e("TEST##", "BaseManager....3");
-			return this.a.activate(var1, 102, var2);
-		} else {
-			Log.e("TEST##", "BaseManager....4");
-			return this instanceof DavinciManager ? this.a.activate(var1, 104, var2) : null;
-		}
-	}
+    protected String a(int i) {
+        String[] labels = this.c.getLabels();
+        return (i < 0 || i >= labels.length) ? "UNKNOWN" : labels[i];
+    }
 
-	private void a(Context var1) throws CallException {
-		String[] var5;
-		String[] var10000 = var5 = new String[4];
-		var10000[0] = "android.permission.WRITE_EXTERNAL_STORAGE";
-		var10000[1] = "android.permission.INTERNET";
-		var10000[2] = "android.permission.ACCESS_NETWORK_STATE";
-		var10000[3] = "android.permission.READ_PHONE_STATE";
-		int var2 = var10000.length;
+    protected List<ClassificationResultModel> a(Bitmap bitmap, float f, e eVar) throws BaseException {
+        int[] iArr = new int[2];
+        float[] b = a(bitmap, f, eVar, 2, iArr).b();
+        com.baidu.ai.edge.core.classify.a aVar = new com.baidu.ai.edge.core.classify.a(getClass(), this.c, bitmap.getWidth(), bitmap.getHeight(), iArr[0], iArr[1]);
+        TimeRecorderNew timeRecorderNew = new TimeRecorderNew();
+        List<ClassificationResultModel> a = aVar.a(b, f);
+        long end = timeRecorderNew.end();
+        if (eVar != null) {
+            eVar.setPostprocessTime(end);
+            eVar.setResultModel(a);
+        }
+        return a;
+    }
 
-		for(int var3 = 0; var3 < var2; ++var3) {
-			String var4;
-			if (ContextCompat.checkSelfPermission(var1, var4 = var5[var3]) != 0) {
-				throw new CallException(1003, "Please allow permission:" + var4);
-			}
-		}
+    protected List<DetectionResultModel> a(float[] fArr, String[] strArr, int i, int i2) {
+        float[] fArr2 = fArr;
+        String[] strArr2 = strArr;
+        int length = fArr2.length / 7;
+        List<DetectionResultModel> arrayList = new ArrayList(length);
+        for (int i3 = 0; i3 < length; i3++) {
+            String str;
+            int i4 = i3 * 7;
+            int round = Math.round(fArr2[i4 + 1]);
+            if (round < 0 || round >= strArr2.length) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("label index out of bound , index : ");
+                stringBuilder.append(round);
+                stringBuilder.append(" ,at :");
+                stringBuilder.append(i3);
+                Log.e("SnpeManager", stringBuilder.toString());
+                str = "UNKNOWN";
+            } else {
+                str = strArr2[round];
+            }
+            float f = (float) i;
+            float f2 = (float) i2;
+            DetectionResultModel detectionResultModel = new DetectionResultModel(str, fArr2[i4 + 2], new Rect(Math.round(fArr2[i4 + 3] * f), Math.round(fArr2[i4 + 4] * f2), Math.round(fArr2[i4 + 5] * f), Math.round(fArr2[i4 + 6] * f2)));
+            detectionResultModel.setLabelIndex(round);
+            arrayList.add(detectionResultModel);
+        }
+        return arrayList;
+    }
 
-		if (android.os.Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-			throw new CallException(1003, "Please allow all files access:");
-		}
-	}
+    protected void a() throws CallException {
+        if (this.g) {
+            throw new CallException(Consts.EC_BASE_MANAGER_HAS_DETORYED, "this instance is destoryed");
+        }
+    }
 
-	protected abstract void e() throws CallException;
+    protected abstract float[] a(Bitmap bitmap, JniParam jniParam, int i) throws BaseException;
 
-	protected boolean d() {
-		String var1;
-		if ((var1 = this.c.getAuthType()) != null && !var1.isEmpty()) {
-			return "no-auth".equals(var1);
-		} else {
-			return "EasyEdge-Free".equals(this.c.getProduct());
-		}
-	}
+    protected JniParam b() {
+        JniParam fillCommonAuthParam = this.a.fillCommonAuthParam(this.d);
+        fillCommonAuthParam.put("modelEncVal", (long) this.c.getModelEncValue());
+        fillCommonAuthParam.put("modelType", (long) this.c.getModelType());
+        fillCommonAuthParam.put("modelFileAssetPath", this.c.getModelFileAssetPath());
+        fillCommonAuthParam.put("nType", (long) this.c.getNType());
+        fillCommonAuthParam.put("skipDecrypt", Boolean.valueOf(d()));
+        return fillCommonAuthParam;
+    }
 
-	public IStatisticsResultModel detectPro(Bitmap var1) throws BaseException {
-		e var2;
-		e var10000 = var2 = new e();
-		this.b(var1, this.c.getRecommendedConfidence(), var2);
-		return var10000;
-	}
+    protected List<DetectionResultModel> b(Bitmap bitmap, float f, e eVar) throws BaseException {
+        int[] iArr = new int[2];
+        c a = a(bitmap, f, eVar, 2, iArr);
+        float[] b = a.b();
+        com.baidu.ai.edge.core.detect.a aVar = new com.baidu.ai.edge.core.detect.a(getClass(), this.c, bitmap.getWidth(), bitmap.getHeight(), iArr[0], iArr[1], a.a());
+        TimeRecorderNew timeRecorderNew = new TimeRecorderNew();
+        List<DetectionResultModel> a2 = aVar.a(b, f);
+        long end = timeRecorderNew.end();
+        if (eVar != null) {
+            eVar.setPostprocessTime(end);
+            eVar.setResultModel(a2);
+        }
+        return a2;
+    }
 
-	public List<DetectionResultModel> detect(Bitmap var1, float var2) throws BaseException {
-		return this.b(var1, var2, (e)null);
-	}
+    protected void c() {
+        a aVar = this.e;
+        if (aVar != null) {
+            aVar.a();
+        }
+    }
 
-	public List<DetectionResultModel> detect(Bitmap var1) throws BaseException {
-		return this.detect(var1, this.c.getRecommendedConfidence());
-	}
+    public List<ClassificationResultModel> classify(Bitmap bitmap) throws BaseException {
+        return classify(bitmap, this.c.getRecommendedConfidence());
+    }
 
-	public IStatisticsResultModel classifyPro(Bitmap var1) throws BaseException {
-		e var2;
-		e var10000 = var2 = new e();
-		this.a(var1, this.c.getRecommendedConfidence(), var2);
-		return var10000;
-	}
+    public List<ClassificationResultModel> classify(Bitmap bitmap, float f) throws BaseException {
+        return a(bitmap, f, null);
+    }
 
-	public List<ClassificationResultModel> classify(Bitmap var1) throws BaseException {
-		return this.classify(var1, this.c.getRecommendedConfidence());
-	}
+    public IStatisticsResultModel classifyPro(Bitmap bitmap) throws BaseException {
+        e eVar = new e();
+        a(bitmap, this.c.getRecommendedConfidence(), eVar);
+        return eVar;
+    }
 
-	public List<ClassificationResultModel> classify(Bitmap var1, float var2) throws BaseException {
-		return this.a(var1, var2, (e)null);
-	}
+    protected boolean d() {
+        String authType = this.c.getAuthType();
+        if (authType != null && !authType.isEmpty()) {
+            return "no-auth".equals(authType);
+        } else {
+            return Consts.PROD_EASYEDGE_FREE.equals(this.c.getProduct());
+        }
+    }
 
-	protected List<DetectionResultModel> b(Bitmap var1, float var2, e var3) throws BaseException {
-		int[] var4 = new int[2];
-		c var5;
-		float[] var6 = (var5 = this.a(var1, var2, var3, 2, var4)).b();
-		com.baidu.ai.edge.core.detect.a var7;
-		var7 = new com.baidu.ai.edge.core.detect.a(this.getClass(), this.c, var1.getWidth(), var1.getHeight(), var4[0], var4[1], var5.a());
-		TimeRecorderNew var8;
-		TimeRecorderNew var10001 = var8 = new TimeRecorderNew();
+    protected void destroy() throws BaseException {
+        this.g = true;
+        this.a.terminate();
+        Log.i("InferManager", "pointer destroy");
+        a aVar = this.e;
+        if (aVar != null) {
+            aVar.b();
+        }
+    }
 
-		List var9 = var7.a(var6, var2);
-		long var10 = var10001.end();
-		if (var3 != null) {
-			var3.setPostprocessTime(var10);
-			var3.setResultModel(var9);
-		}
+    public List<DetectionResultModel> detect(Bitmap bitmap) throws BaseException {
+        return detect(bitmap, this.c.getRecommendedConfidence());
+    }
 
-		return var9;
-	}
+    public List<DetectionResultModel> detect(Bitmap bitmap, float f) throws BaseException {
+        return b(bitmap, f, null);
+    }
 
-	protected List<ClassificationResultModel> a(Bitmap var1, float var2, e var3) throws BaseException {
-		int[] var4 = new int[2];
-		float[] var5 = this.a(var1, var2, var3, 2, var4).b();
-		com.baidu.ai.edge.core.classify.a var6;
-		var6 = new com.baidu.ai.edge.core.classify.a(this.getClass(), this.c, var1.getWidth(), var1.getHeight(), var4[0], var4[1]);
-		TimeRecorderNew var7;
-		TimeRecorderNew var10001 = var7 = new TimeRecorderNew();
-		List var8 = var6.a(var5, var2);
-		long var9 = var10001.end();
-		if (var3 != null) {
-			var3.setPostprocessTime(var9);
-			var3.setResultModel(var8);
-		}
+    public IStatisticsResultModel detectPro(Bitmap bitmap) throws BaseException {
+        e eVar = new e();
+        b(bitmap, this.c.getRecommendedConfidence(), eVar);
+        return eVar;
+    }
 
-		return var8;
-	}
-
-	protected c a(Bitmap var1, float var2, IStatisticsResultModel var3, int var4, int[] var5) throws BaseException {
-		float var10003 = var2;
-		this.a();
-		Log.i(this.f, "predict " + var4 + ": confidence: " + var2);
-		TimeRecorderNew var10;
-		var10 = new TimeRecorderNew();
-		JniParam var12;
-		JniParam var10000 = var12 = this.a(var1, var4, var10003, var5);
-		float[] var8 = this.a(var1, var12, var4);
-		c var11;
-		var11 = new c(var8);
-		long var6 = var10000.getLong("preprocessEndTime");
-		if (var10000.containsKey("extraNetFlag")) {
-			var11.a((int)var12.getLong("extraNetFlag"));
-		}
-
-		long var9 = var10.checkpoint(var6);
-		Log.i(this.f, "[stat]preprocess time: " + var9);
-		var6 = var10.end();
-		Log.i(this.f, "[stat]forward time: " + var6);
-		if (var3 != null) {
-			var3.setPreprocessTime(var9);
-			var3.setForwardTime(var6);
-		}
-
-		this.c();
-		return var11;
-	}
-
-	protected abstract float[] a(Bitmap var1, JniParam var2, int var3) throws BaseException;
-
-	protected JniParam a(Bitmap var1, int[] var2, int var3) {
-		d var4 = this.c.getPreprocessConfig();
-		Pair var5 = null;
-		if (var3 == 100) {
-			var5 = ImageUtil.calcWithStep(var1, this.c.getMaxSize(), 32);
-		} else if (this.c.getNType() != 102 && this.c.getNType() != 900102 && this.c.getNType() != 2010 && !"keep_ratio".equalsIgnoreCase(this.c.getPreprocessConfig().r())) {
-			if (this.c.getNType() == 11002) {
-				var5 = ImageUtil.calcShrinkSize(var1.getWidth(), var1.getHeight());
-			} else if ("keep_ratio2".equalsIgnoreCase(var4.r())) {
-				var5 = ImageUtil.calcTargetSizeForKeepRatio2(var1, var4.q(), var4.p());
-			}
-		} else {
-			var5 = ImageUtil.calcTarget(var1, var4.t(), var4.g());
-		}
-
-		int var7 = var4.q();
-		int var8 = var4.p();
-		if (var5 != null) {
-			var7 = (Integer)var5.first;
-			var8 = (Integer)var5.second;
-		}
-
-		if (var2 != null) {
-			byte var11 = 0;
-			int var6;
-			if (var4.u()) {
-				var6 = var4.q();
-			} else {
-				var6 = var7;
-			}
-
-			var2[var11] = var6;
-			var11 = 1;
-			if (var4.u()) {
-				var6 = var4.p();
-			} else {
-				var6 = var8;
-			}
-
-			var2[var11] = var6;
-		}
-
-		JniParam var9 = com.baidu.ai.edge.core.base.b.a(var4, var7, var8);
-		if (var3 == 100) {
-			long var10 = (long)var4.j();
-			var9.put("ocrRecWidth", var10);
-			var10 = (long)var4.i();
-			var9.put("ocrRecHeight", var10);
-			var10 = (long)var4.h();
-			var9.put("ocrRecBatchNum", var10);
-		}
-
-		return var9;
-	}
-
-	protected JniParam a(Bitmap var1, int var2, float var3, int[] var4) {
-		JniParam var5;
-		JniParam var10000 = var5 = new JniParam();
-		BaseManager var10002 = this;
-		BaseManager var10004 = this;
-		BaseManager var10008 = this;
-		BaseManager var10012 = this;
-
-		var5.put("product", this.c.j);
-		long var6 = (long)var1.getWidth();
-		var5.put("originWidth", var6);
-		var6 = (long)var1.getHeight();
-		var5.put("originHeight", var6);
-		var5.put("preprocessObj", var10012.a(var1, var4, var2));
-		var6 = (long)var2;
-		var5.put("modelType", var6);
-		var6 = (long)var10008.c.getNType();
-		var5.put("nType", var6);
-		var5.put("confidence", var3);
-		var5.put("extraDetection", var10004.c.getExtraDetectionJson());
-		var6 = (long)var10002.c.getLabels().length;
-		var10000.put("classNum", var6);
-		return var10000;
-	}
-
-	protected List<DetectionResultModel> a(float[] var1, String[] var2, int var3, int var4) {
-		int var14 = var1.length / 7;
-		ArrayList var5;
-		var5 = new ArrayList(var14);
-
-		for(int var6 = 0; var6 < var14; ++var6) {
-			int var7;
-			int var8;
-			String var9;
-			if ((var8 = Math.round(var1[(var7 = var6 * 7) + 1])) >= 0 && var8 < var2.length) {
-				var9 = var2[var8];
-			} else {
-				Log.e("SnpeManager", "label index out of bound , index : " + var8 + " ,at :" + var6);
-				var9 = "UNKNOWN";
-			}
-
-			float var15 = var1[var7 + 2];
-			float var10;
-			int var11 = Math.round(var1[var7 + 3] * (var10 = (float)var3));
-			float var12;
-			int var13 = Math.round(var1[var7 + 4] * (var12 = (float)var4));
-			int var16 = Math.round(var1[var7 + 5] * var10);
-			int var17 = Math.round(var1[var7 + 6] * var12);
-			DetectionResultModel var10001 = new DetectionResultModel(var9, var15, new Rect(var11, var13, var16, var17));
-			var10001.setLabelIndex(var8);
-			var5.add(var10001);
-		}
-
-		return var5;
-	}
-
-	protected void c() {
-		aaa var1;
-		if ((var1 = this.e) != null) {
-			var1.a();
-		}
-
-	}
-
-	protected void destroy() throws BaseException {
-		this.g = true;
-		this.a.terminate();
-		Log.i("InferManager", "pointer destroy");
-		aaa var1;
-		if ((var1 = this.e) != null) {
-			var1.b();
-		}
-
-	}
-
-	protected JniParam b() {
-		JniParam var1;
-		JniParam var10000 = var1 = this.a.fillCommonAuthParam(this.d);
-		JniParam var10003 = var1;
-		JniParam var10005 = var1;
-		JniParam var10007 = var1;
-		JniParam var10009 = var1;
-		long var3 = (long)this.c.getModelEncValue();
-		var10009.put("modelEncVal", var3);
-		var3 = (long)this.c.getModelType();
-		var10007.put("modelType", var3);
-		var10005.put("modelFileAssetPath", this.c.getModelFileAssetPath());
-		var3 = (long)this.c.getNType();
-		var10003.put("nType", var3);
-		var10000.put("skipDecrypt", this.d());
-		return var10000;
-	}
-
-	protected void a() throws CallException {
-		if (this.g) {
-			throw new CallException(2002, "this instance is destoryed");
-		}
-	}
-
-	protected String a(int var1) {
-		String[] var2 = this.c.getLabels();
-		return var1 >= 0 && var1 < var2.length ? var2[var1] : "UNKNOWN";
-	}
+    protected abstract void e() throws CallException;
 }

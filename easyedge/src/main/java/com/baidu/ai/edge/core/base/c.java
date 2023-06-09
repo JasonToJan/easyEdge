@@ -1,40 +1,27 @@
-// Decompiled by Jad v1.5.8e2. Copyright 2001 Pavel Kouznetsov.
-// Jad home page: http://kpdus.tripod.com/jad.html
-// Decompiler options: packimports(3) fieldsfirst ansi space 
-// Source File Name:   
-
 package com.baidu.ai.edge.core.base;
 
+public class c {
+    private float[] a;
+    private int b;
 
-public class c
-{
+    public c(float[] fArr) {
+        this(fArr, 0);
+    }
 
-	private float a[];
-	private int b;
+    public c(float[] fArr, int i) {
+        this.a = fArr;
+        this.b = i;
+    }
 
-	public c(float af[])
-	{
-		this(af, 0);
-	}
+    public int a() {
+        return this.b;
+    }
 
-	public c(float af[], int i)
-	{
-		a = af;
-		b = i;
-	}
+    public void a(int i) {
+        this.b = i;
+    }
 
-	public int a()
-	{
-		return b;
-	}
-
-	public void a(int i)
-	{
-		b = i;
-	}
-
-	public float[] b()
-	{
-		return a;
-	}
+    public float[] b() {
+        return this.a;
+    }
 }

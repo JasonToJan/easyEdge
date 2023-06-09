@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.ddk;
 
 import android.content.res.AssetManager;
@@ -10,39 +5,53 @@ import android.os.Build;
 import android.util.Log;
 import com.baidu.ai.edge.core.base.BaseConfig;
 import com.baidu.ai.edge.core.base.CallException;
+import com.baidu.ai.edge.core.base.Consts;
 
 public class DDKDaVinciConfig extends BaseConfig {
-	private boolean w = true;
+    private boolean w = true;
 
-	public DDKDaVinciConfig(AssetManager var1, String var2) throws Throwable {
-		super(var1, var2);
-		if (super.m) {
-			super.a = var2 + "/params.enc";
-		} else {
-			super.a = var2 + "/params";
-		}
+    public DDKDaVinciConfig(AssetManager assetManager, String str) throws CallException {
+        super(assetManager, str);
+        StringBuilder stringBuilder;
+        if (this.m) {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            str = "/params.enc";
+        } else {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            str = "/params";
+        }
+        stringBuilder.append(str);
+        this.a = stringBuilder.toString();
+    }
 
-	}
+    public String getSoc() {
+        return Consts.SOC_NPU_VINCI;
+    }
 
-	public boolean isAutoCheckNpu() {
-		return this.w;
-	}
+    public boolean isAutoCheckNpu() {
+        return this.w;
+    }
 
-	public void setAutoCheckNpu(boolean var1) {
-		this.w = var1;
-	}
+    public boolean isSupportDavinciNpu() throws CallException {
+        if (this.w) {
+            String toLowerCase = Build.HARDWARE.toLowerCase();
+            if (!(toLowerCase.contains("kirin810") || toLowerCase.contains("kirin990") || toLowerCase.contains("kirin820") || toLowerCase.contains("kirin985"))) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("Your device does NOT support Davinci:");
+                stringBuilder.append(toLowerCase);
+                Log.e("DDKDaVinciConfig", stringBuilder.toString());
+                StringBuilder stringBuilder2 = new StringBuilder();
+                stringBuilder2.append("Your device does NOT support Davinci: ");
+                stringBuilder2.append(toLowerCase);
+                throw new CallException(Consts.EC_CHECK_NPU_FAIL, stringBuilder2.toString());
+            }
+        }
+        return true;
+    }
 
-	public boolean isSupportDavinciNpu() throws CallException {
-		String var1;
-		if (this.w && !(var1 = Build.HARDWARE.toLowerCase()).contains("kirin810") && !var1.contains("kirin990") && !var1.contains("kirin820") && !var1.contains("kirin985")) {
-			Log.e("DDKDaVinciConfig", "Your device does NOT support Davinci:" + var1);
-			throw new CallException(7001, "Your device does NOT support Davinci: " + var1);
-		} else {
-			return true;
-		}
-	}
-
-	public String getSoc() {
-		return "npu-vinci";
-	}
+    public void setAutoCheckNpu(boolean z) {
+        this.w = z;
+    }
 }

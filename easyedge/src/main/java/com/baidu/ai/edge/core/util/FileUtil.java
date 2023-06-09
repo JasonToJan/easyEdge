@@ -1,113 +1,149 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.util;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
 import android.util.Log;
-
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 public class FileUtil {
-	public FileUtil() {
-	}
+    public static boolean hasLf(String str) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(Environment.getExternalStorageDirectory().getAbsolutePath());
+        stringBuilder.append("/");
+        stringBuilder.append(str);
+        new File(stringBuilder.toString()).exists();
+        return true;
+    }
 
-	public static String readFile(String var0) throws IOException {
-		FileInputStream var1;
-		FileInputStream var10000 = var1 = new FileInputStream(var0);
+    public static boolean makeDir(String str) {
+        File file = new File(str);
+        return !file.exists() ? file.mkdirs() : true;
+    }
 
-		byte[] var2;
-		int var3;
-		int var4;
-		int var5 = var3 = var10000.read(var2 = new byte[var4 = var10000.available()]);
-		var1.close();
-		if (var5 == var4) {
-			return new String(var2);
-		} else {
-			throw new IOException("readFile realSize is not equal to size: " + var3 + " : " + var4);
-		}
-	}
+    public static byte[] readAssetFileContent(AssetManager assetManager, String str) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("try to read asset file: ");
+        stringBuilder.append(str);
+        Log.i("FileUtil", stringBuilder.toString());
+        InputStream open = assetManager.open(str);
+        int available = open.available();
+        byte[] bArr = new byte[available];
+        int read = open.read(bArr);
+        open.close();
+        if (read == available) {
+            return bArr;
+        }
+        stringBuilder = new StringBuilder();
+        stringBuilder.append("realSize is not equal to size: ");
+        stringBuilder.append(read);
+        stringBuilder.append(" : ");
+        stringBuilder.append(available);
+        throw new IOException(stringBuilder.toString());
+    }
 
-	public static String readAssetFileUtf8String(AssetManager var0, String var1) throws IOException {
-		byte[] var2 = readAssetFileContent(var0, var1);
-		return new String(var2, Charset.forName("UTF-8"));
-	}
+    public static String readAssetFileUtf8String(AssetManager assetManager, String str) throws IOException {
+        return new String(readAssetFileContent(assetManager, str), Charset.forName("UTF-8"));
+    }
 
-	public static byte[] readAssetFileContent(AssetManager var0, String var1) throws IOException {
-		Log.i("FileUtil", "try to read asset file: " + var1);
-		InputStream var4;
-		InputStream var10000 = var4 = var0.open(var1);
-		byte[] var2;
-		int var3;
-		int var6;
-		int var5 = var3 = var10000.read(var2 = new byte[var6 = var10000.available()]);
-		var4.close();
-		if (var5 == var6) {
-			return var2;
-		} else {
-			throw new IOException("realSize is not equal to size: " + var3 + " : " + var6);
-		}
-	}
+    public static String readAssetsFileUTF8StringIfExists(AssetManager assetManager, String fileName) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("try to read asset file: ");
+        stringBuilder.append(fileName);
+        String logMessage = stringBuilder.toString();
+        Log.i("FileUtil", logMessage);
 
-	public static boolean hasLf(String var0) {
-		var0 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + var0;
-		(new File(var0)).exists();
-		return true;
-	}
+        InputStream inputStream = null;
+        String result = null;
 
-	public static boolean makeDir(String var0) {
-		File var1;
-		File var10000 = var1 = new File(var0);
-		return !var10000.exists() ? var1.mkdirs() : true;
-	}
+        try {
+            inputStream = assetManager.open(fileName);
+            int availableBytes = inputStream.available();
+            byte[] buffer = new byte[availableBytes];
+            int bytesRead = inputStream.read(buffer);
 
-	public static String readAssetsFileUTF8StringIfExists(AssetManager assetManager, String fileName) {
-		try {
-			InputStream inputStream = assetManager.open(fileName);
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-			StringBuilder stringBuilder = new StringBuilder();
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				stringBuilder.append(line);
-			}
-			inputStream.close();
-			return stringBuilder.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-//			throw new IOException(e.getMessage());
-		}
-		return "";
-	}
+            if (bytesRead == availableBytes) {
+                result = new String(buffer, Charset.forName("UTF-8"));
+            } else {
+                throw new IOException("realSize is not equal to size: " + bytesRead + " : " + availableBytes);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
+        return result;
+    }
 
-	public static String readFileIfExists(String filePath) throws IOException {
-		File file = new File(filePath);
-		if (!file.exists()) {
-			return "";
-		}
-		try {
-			FileInputStream fileInputStream = new FileInputStream(file);
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
-			StringBuilder stringBuilder = new StringBuilder();
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				stringBuilder.append(line);
-			}
-			fileInputStream.close();
-			return stringBuilder.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
-		}
-	}
+    public static String readFile(String str) throws IOException {
+        Log.e("TEST##", "str=="+str);
+        FileInputStream fileInputStream = new FileInputStream(str);
+        int available = fileInputStream.available();
+        byte[] bArr = new byte[available];
+        int read = fileInputStream.read(bArr);
+        fileInputStream.close();
+        if (read == available) {
+            return new String(bArr);
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("readFile realSize is not equal to size: ");
+        stringBuilder.append(read);
+        stringBuilder.append(" : ");
+        stringBuilder.append(available);
+        throw new IOException(stringBuilder.toString());
+    }
 
+//    public static String readFile(String filePath) throws IOException {
+//        Log.e("TEST##", "filePath==" + filePath);
+//        AssetManager assetManager = context.getAssets();
+//        InputStream inputStream = assetManager.open(filePath);
+//        int available = inputStream.available();
+//        byte[] buffer = new byte[available];
+//        int bytesRead = inputStream.read(buffer);
+//        inputStream.close();
+//
+//        if (bytesRead == available) {
+//            return new String(buffer);
+//        } else {
+//            StringBuilder stringBuilder = new StringBuilder();
+//            stringBuilder.append("readFile realSize is not equal to size: ");
+//            stringBuilder.append(bytesRead);
+//            stringBuilder.append(" : ");
+//            stringBuilder.append(available);
+//            throw new IOException(stringBuilder.toString());
+//        }
+//    }
+
+    public static String readFileIfExists(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return null;
+        }
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            int bytesRead = fis.read(buffer);
+
+            if (bytesRead != size) {
+                throw new IOException("readFile realSize is not equal to size: " + bytesRead + " : " + size);
+            }
+
+            return new String(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

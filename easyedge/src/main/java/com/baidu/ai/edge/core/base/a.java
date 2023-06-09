@@ -1,21 +1,14 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.base;
 
 public class a {
-	protected String a;
+    protected String a;
 
-	protected a(String var1, String var2, String var3) {
-		this.a = var1;
-		this.a();
-	}
+    protected a(String str, String str2, String str3) {
+        this.a = str;
+        a();
+    }
 
-	private void a() {
-		a var10000 = this;
-		int var1 = this.a.indexOf("/", 8);
-		var10000.a.substring(0, var1);
-	}
+    private void a() {
+        this.a.substring(0, this.a.indexOf("/", 8));
+    }
 }

@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.base;
 
 import android.util.Log;
@@ -10,85 +5,86 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JniParam {
-	private boolean a = false;
-	private Map<String, Object> b = new HashMap();
+    private boolean a = false;
+    private Map<String, Object> b = new HashMap();
 
-	public JniParam() {
-	}
+    private void a(String str) {
+        if (this.a) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Try to read key:  ");
+            stringBuilder.append(str);
+            Log.i("JniParam", stringBuilder.toString());
+        }
+    }
 
-	private void a(String var1) {
-		if (this.a) {
-			Log.i("JniParam", "Try to read key:  " + var1);
-		}
+    public boolean containsKey(String str) {
+        a(str);
+        return this.b.containsKey(str);
+    }
 
-	}
+    public boolean getBool(String str) {
+        a(str);
+        return !this.b.containsKey(str) ? false : ((Boolean) this.b.get(str)).booleanValue();
+    }
 
-	public void put(String var1, Object var2) {
-		this.b.put(var1, var2);
-	}
+    public double getDouble(String str) {
+        a(str);
+        return ((Double) this.b.get(str)).doubleValue();
+    }
 
-	public void put(String var1, long var2) {
-		this.b.put(var1, var2);
-	}
+    public float getFloat(String str) {
+        a(str);
+        return ((Float) this.b.get(str)).floatValue();
+    }
 
-	public int getInt(String var1) {
-		this.a(var1);
-		Object var2;
-		if ((var2 = this.b.get(var1)) == null) {
-			Log.e("JniParams", "value is null : " + var1);
-			return 0;
-		} else {
-			return Integer.valueOf(var2.toString());
-		}
-	}
+    public float[] getFloatArr(String str) {
+        a(str);
+        return (float[]) this.b.get(str);
+    }
 
-	public boolean getBool(String var1) {
-		this.a(var1);
-		return !this.b.containsKey(var1) ? false : (Boolean)this.b.get(var1);
-	}
+    public int getInt(String str) {
+        a(str);
+        Object obj = this.b.get(str);
+        if (obj != null) {
+            return Integer.valueOf(obj.toString()).intValue();
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("value is null : ");
+        stringBuilder.append(str);
+        Log.e("JniParams", stringBuilder.toString());
+        return 0;
+    }
 
-	public long getLong(String var1) {
-		this.a(var1);
-		return (Long)this.b.get(var1);
-	}
+    public int[] getIntArr(String str) {
+        a(str);
+        return (int[]) this.b.get(str);
+    }
 
-	public float getFloat(String var1) {
-		this.a(var1);
-		return (Float)this.b.get(var1);
-	}
+    public long getLong(String str) {
+        a(str);
+        return ((Long) this.b.get(str)).longValue();
+    }
 
-	public double getDouble(String var1) {
-		this.a(var1);
-		return (Double)this.b.get(var1);
-	}
+    public Object getObject(String str) {
+        a(str);
+        return this.b.get(str);
+    }
 
-	public String getString(String var1) {
-		this.a(var1);
-		return (String)this.b.get(var1);
-	}
+    public String getString(String str) {
+        a(str);
+        return (String) this.b.get(str);
+    }
 
-	public boolean isNull(String var1) {
-		this.a(var1);
-		return this.b.get(var1) == null;
-	}
+    public boolean isNull(String str) {
+        a(str);
+        return this.b.get(str) == null;
+    }
 
-	public Object getObject(String var1) {
-		this.a(var1);
-		return this.b.get(var1);
-	}
+    public void put(String str, long j) {
+        this.b.put(str, Long.valueOf(j));
+    }
 
-	public float[] getFloatArr(String var1) {
-		this.a(var1);
-		return (float[])this.b.get(var1);
-	}
-
-	public int[] getIntArr(String var1) {
-		this.a(var1);
-		return (int[])this.b.get(var1);
-	}
-
-	public boolean containsKey(String var1) {
-		this.a(var1);
-		return this.b.containsKey(var1);
-	}
+    public void put(String str, Object obj) {
+        this.b.put(str, obj);
+    }
 }

@@ -1,35 +1,37 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.infer;
 
 import android.content.res.AssetManager;
 import com.baidu.ai.edge.core.base.CallException;
+import com.baidu.ai.edge.core.base.Consts;
 
 public class ArmGpuConfig extends InferConfig {
-	private boolean z;
+    private boolean z;
 
-	public ArmGpuConfig(AssetManager var1, String var2) throws Throwable {
-		super(var1, var2);
-		if (super.m) {
-			super.a = var2 + "/params.enc";
-		} else {
-			super.a = var2 + "/params";
-		}
+    public ArmGpuConfig(AssetManager assetManager, String str) throws CallException {
+        super(assetManager, str);
+        StringBuilder stringBuilder;
+        if (this.m) {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            str = "/params.enc";
+        } else {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            str = "/params";
+        }
+        stringBuilder.append(str);
+        this.a = stringBuilder.toString();
+    }
 
-	}
+    public String getSoc() {
+        return Consts.SOC_ARM_GPU;
+    }
 
-	public void setOpenclTune(boolean var1) {
-		this.z = var1;
-	}
+    public boolean isOpenclTune() {
+        return this.z;
+    }
 
-	public boolean isOpenclTune() {
-		return this.z;
-	}
-
-	public String getSoc() {
-		return "arm-gpu";
-	}
+    public void setOpenclTune(boolean z) {
+        this.z = z;
+    }
 }

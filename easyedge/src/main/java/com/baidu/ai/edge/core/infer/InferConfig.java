@@ -1,71 +1,96 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.infer;
 
 import android.content.res.AssetManager;
 import com.baidu.ai.edge.core.base.BaseConfig;
 import com.baidu.ai.edge.core.base.CallException;
+import com.baidu.ai.edge.core.base.Consts;
 import com.baidu.ai.edge.core.util.Util;
 
 public class InferConfig extends BaseConfig {
-	private String w;
-	private String x;
-	private int y = 0;
+    private String w;
+    private String x;
+    private int y = 0;
 
-	public InferConfig(AssetManager var1, String var2) throws Throwable {
-		super(var1, var2);
-		if (super.i == 100) {
-			super.a = var2 + "/model";
-			this.x = var2 + "/params";
-			super.l = true;
-		} else if (super.m) {
-			if (super.l) {
-				super.a = var2 + "/params.enc";
-			} else {
-				super.a = var2 + "/model.enc";
-				this.w = var2 + "/params.enc";
-			}
-		} else if (super.l) {
-			super.a = var2 + "/params";
-		} else {
-			super.a = var2 + "/model";
-			this.w = var2 + "/params";
-		}
+    public InferConfig(AssetManager assetManager, String str) throws CallException {
+        super(assetManager, str);
+        String str2 = "/model";
+        String str3 = "/params";
+        StringBuilder stringBuilder;
+        if (this.i == 100) {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            stringBuilder.append(str2);
+            this.a = stringBuilder.toString();
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            stringBuilder.append(str3);
+            this.x = stringBuilder.toString();
+            this.l = true;
+            return;
+        }
+        if (this.m) {
+            str2 = "/params.enc";
+            if (this.l) {
+                stringBuilder = new StringBuilder();
+                stringBuilder.append(str);
+                stringBuilder.append(str2);
+            } else {
+                stringBuilder = new StringBuilder();
+                stringBuilder.append(str);
+                stringBuilder.append("/model.enc");
+                this.a = stringBuilder.toString();
+                stringBuilder = new StringBuilder();
+                stringBuilder.append(str);
+                stringBuilder.append(str2);
+                this.w = stringBuilder.toString();
+                return;
+            }
+        } else if (this.l) {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            stringBuilder.append(str3);
+        } else {
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            stringBuilder.append(str2);
+            this.a = stringBuilder.toString();
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(str);
+            stringBuilder.append(str3);
+            this.w = stringBuilder.toString();
+            return;
+        }
+        this.a = stringBuilder.toString();
+    }
 
-	}
+    public String getExtraModelFilePath() {
+        return this.x;
+    }
 
-	public int getThread() {
-		if (this.y == 0) {
-			this.y = Util.getInferCores();
-		}
+    public String getParamFileAssetPath() {
+        return this.w;
+    }
 
-		return this.y;
-	}
+    public String getSoc() {
+        return Consts.SOC_ARM;
+    }
 
-	public void setThread(int var1) {
-		this.y = var1;
-	}
+    public int getThread() {
+        if (this.y == 0) {
+            this.y = Util.getInferCores();
+        }
+        return this.y;
+    }
 
-	public String getParamFileAssetPath() {
-		return this.w;
-	}
+    public void setExtraModelFilePath(String str) {
+        this.x = str;
+    }
 
-	public void setParamFileAssetPath(String var1) {
-		this.w = var1;
-	}
+    public void setParamFileAssetPath(String str) {
+        this.w = str;
+    }
 
-	public String getExtraModelFilePath() {
-		return this.x;
-	}
-
-	public void setExtraModelFilePath(String var1) {
-		this.x = var1;
-	}
-
-	public String getSoc() {
-		return "arm";
-	}
+    public void setThread(int i) {
+        this.y = i;
+    }
 }

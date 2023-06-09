@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.ddk;
 
 import android.content.Context;
@@ -12,6 +7,7 @@ import android.util.Log;
 import com.baidu.ai.edge.core.base.BaseException;
 import com.baidu.ai.edge.core.base.BaseManager;
 import com.baidu.ai.edge.core.base.CallException;
+import com.baidu.ai.edge.core.base.Consts;
 import com.baidu.ai.edge.core.base.IStatisticsResultModel;
 import com.baidu.ai.edge.core.base.JniParam;
 import com.baidu.ai.edge.core.base.e;
@@ -22,132 +18,94 @@ import com.baidu.ai.edge.core.detect.DetectionResultModel;
 import java.util.List;
 
 public class DavinciManager extends BaseManager implements ClassifyInterface, DetectInterface {
-	private static volatile boolean j;
-	private DDKDaVinciConfig h;
-	private long i;
+    private static volatile boolean j = false;
+    private final DDKDaVinciConfig h;
+    private long i;
 
-	public DavinciManager(Context var1, DDKDaVinciConfig var2, String var3) throws Throwable {
-		super(var1, new DavinciJni(), var2, var3);
-		Class var17 = DavinciManager.class;
-		synchronized(DavinciManager.class){}
+    public DavinciManager(Context context, DDKDaVinciConfig dDKDaVinciConfig, String str) throws BaseException {
+        super(context, new DavinciJni(), dDKDaVinciConfig, str);
+        synchronized (DavinciManager.class) {
+            if (j) {
+                throw new CallException(Consts.EC_BASE_MANAGER_MULTI_INSTANCES, "only one active instance of DavinciManager is allowed, please destory() the old one");
+            }
+            j = true;
+        }
+        this.h = dDKDaVinciConfig;
+        dDKDaVinciConfig.setAutoCheckNpu(true);
+        dDKDaVinciConfig.isSupportDavinciNpu();
+        if (TextUtils.isEmpty(dDKDaVinciConfig.getModelFileAssetPath())) {
+            throw new CallException(Consts.EC_BASE_DETECT_MANAGER_ASSET_MODEL_NULL, "model asset file path is NULL");
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("getModelFileAssetPath: ");
+        stringBuilder.append(dDKDaVinciConfig.getModelFileAssetPath());
+        Log.i("DavinciManager", stringBuilder.toString());
+        f();
+    }
 
-		Throwable var10000;
-		boolean var18;
-		boolean var20;
-		try {
-			var18 = j;
-		} catch (Throwable var15) {
-			var10000 = var15;
-			var20 = false;
-			throw var10000;
-		}
+    private List<ClassificationResultModel> c(Bitmap bitmap, float f, e eVar) throws BaseException {
+        return a(bitmap, f, eVar);
+    }
 
-		if (!var18) {
-			DDKDaVinciConfig var19;
-			DavinciManager var10003;
-			DDKDaVinciConfig var10004;
-			DDKDaVinciConfig var21;
-			DDKDaVinciConfig var22;
-			try {
-				var19 = var2;
-				var21 = var2;
-				var22 = var2;
-				var10003 = this;
-				var10004 = var2;
-				j = true;
-			} catch (Throwable var13) {
-				var10000 = var13;
-				var20 = false;
-				throw var10000;
-			}
+    private List<DetectionResultModel> d(Bitmap bitmap, float f, e eVar) throws BaseException {
+        return b(bitmap, f, eVar);
+    }
 
-			var10003.h = var10004;
-			var22.setAutoCheckNpu(true);
-			var21.isSupportDavinciNpu();
-			if (!TextUtils.isEmpty(var19.getModelFileAssetPath())) {
-				Log.i("DavinciManager", "getModelFileAssetPath: " + var2.getModelFileAssetPath());
-				this.f();
-			} else {
-				throw new CallException(2702, "model asset file path is NULL");
-			}
-		} else {
-			try {
-				throw new CallException(2001, "only one active instance of DavinciManager is allowed, please destory() the old one");
-			} catch (Throwable var14) {
-				var10000 = var14;
-				var20 = false;
-				throw var10000;
-			}
-		}
-	}
+    private void f() throws BaseException {
+        JniParam b = b();
+        b.put("modelName", (Object) "params");
+        Context context = this.b;
+        long loadModelSync = DavinciJni.loadModelSync(context, context.getAssets(), b);
+        if (loadModelSync != 0) {
+            this.i = loadModelSync;
+            return;
+        }
+        throw new BaseException(Consts.EC_LOAD_DAVINCI_MODEL_FAILED, "加载DDK-Davinci模型文件失败");
+    }
 
-	private void f() throws BaseException {
-		JniParam var1;
-		(var1 = this.b()).put("modelName", "params");
-		Context var10000 = super.b;
-		long var3;
-		if ((var3 = DavinciJni.loadModelSync(var10000, var10000.getAssets(), var1)) != 0L) {
-			this.i = var3;
-		} else {
-			throw new BaseException(3003, "加载DDK-Davinci模型文件失败");
-		}
-	}
+    protected float[] a(Bitmap bitmap, JniParam jniParam, int i) throws BaseException {
+        jniParam.put("modelName", (Object) "params");
+        return DavinciJni.runModelSync(this.i, jniParam, bitmap);
+    }
 
-	private List<ClassificationResultModel> c(Bitmap var1, float var2, e var3) throws BaseException {
-		return this.a(var1, var2, var3);
-	}
+    public List<ClassificationResultModel> classify(Bitmap bitmap) throws BaseException {
+        return classify(bitmap, this.h.getRecommendedConfidence());
+    }
 
-	private List<DetectionResultModel> d(Bitmap var1, float var2, e var3) throws BaseException {
-		return this.b(var1, var2, var3);
-	}
+    public List<ClassificationResultModel> classify(Bitmap bitmap, float f) throws BaseException {
+        return c(bitmap, f, null);
+    }
 
-	protected void e() throws CallException {
-		DavinciJni.a();
-	}
+    public IStatisticsResultModel classifyPro(Bitmap bitmap) throws BaseException {
+        e eVar = new e();
+        c(bitmap, this.h.getRecommendedConfidence(), eVar);
+        return eVar;
+    }
 
-	public List<ClassificationResultModel> classify(Bitmap var1) throws BaseException {
-		return this.classify(var1, this.h.getRecommendedConfidence());
-	}
+    public void destroy() throws BaseException {
+        a();
+        j = false;
+        DavinciJni.unloadModelSync(this.i);
+        DavinciJni.deactivateInstance(this.b);
+        this.i = 0;
+        super.destroy();
+    }
 
-	public List<ClassificationResultModel> classify(Bitmap var1, float var2) throws BaseException {
-		return this.c(var1, var2, (e)null);
-	}
+    public List<DetectionResultModel> detect(Bitmap bitmap) throws BaseException {
+        return detect(bitmap, this.h.getRecommendedConfidence());
+    }
 
-	public IStatisticsResultModel classifyPro(Bitmap var1) throws BaseException {
-		e var2;
-		e var10000 = var2 = new e();
+    public List<DetectionResultModel> detect(Bitmap bitmap, float f) throws BaseException {
+        return d(bitmap, f, null);
+    }
 
-		this.c(var1, this.h.getRecommendedConfidence(), var2);
-		return var10000;
-	}
+    public IStatisticsResultModel detectPro(Bitmap bitmap) throws BaseException {
+        e eVar = new e();
+        d(bitmap, this.h.getRecommendedConfidence(), eVar);
+        return eVar;
+    }
 
-	public List<DetectionResultModel> detect(Bitmap var1) throws BaseException {
-		return this.detect(var1, this.h.getRecommendedConfidence());
-	}
-
-	public List<DetectionResultModel> detect(Bitmap var1, float var2) throws BaseException {
-		return this.d(var1, var2, (e)null);
-	}
-
-	public IStatisticsResultModel detectPro(Bitmap var1) throws BaseException {
-		e var2;
-		e var10000 = var2 = new e();
-
-		this.d(var1, this.h.getRecommendedConfidence(), var2);
-		return var10000;
-	}
-
-	protected float[] a(Bitmap var1, JniParam var2, int var3) throws BaseException {
-		var2.put("modelName", "params");
-		return DavinciJni.runModelSync(this.i, var2, var1);
-	}
-
-	public void destroy() throws BaseException {
-		this.a();
-		j = false;
-		DavinciJni.unloadModelSync(this.i);
-		DavinciJni.deactivateInstance(super.b);
-		this.i = 0L;
-		super.destroy();
-	}
+    protected void e() throws CallException {
+        DavinciJni.a();
+    }
 }

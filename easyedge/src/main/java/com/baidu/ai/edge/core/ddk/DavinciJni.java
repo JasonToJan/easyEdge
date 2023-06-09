@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.ddk;
 
 import android.content.Context;
@@ -15,30 +10,27 @@ import com.baidu.ai.edge.core.base.JniParam;
 import java.io.IOException;
 
 public class DavinciJni implements ISDKJni {
-	private static CallException a;
+    private static CallException a;
 
-	public DavinciJni() {
-	}
+    public static void a() throws CallException {
+        try {
+            System.loadLibrary("hiai-500");
+            System.loadLibrary("edge-davinci");
+        } catch (Throwable th) {
+            a = new CallException(3000, "加载DDK-Davinci so文件失败", th);
+            CallException callException = a;
+        }
+    }
 
-	public static void a() throws CallException {
-		try {
-			System.loadLibrary("hiai-500");
-			System.loadLibrary("edge-davinci");
-		} catch (Throwable var2) {
-			a = new CallException(3000, "加载DDK-Davinci so文件失败", var2);
-			throw a;
-		}
-	}
+    public static native String activate(Context context, AssetManager assetManager, JniParam jniParam) throws BaseException, IOException;
 
-	public static native String activate(Context var0, AssetManager var1, JniParam var2) throws BaseException, IOException;
+    public static native void deactivateInstance(Context context);
 
-	public static native long loadModelSync(Context var0, AssetManager var1, JniParam var2) throws BaseException;
+    public static native long loadModelSync(Context context, AssetManager assetManager, JniParam jniParam) throws BaseException;
 
-	public static native float[] runModelSync(long var0, JniParam var2, Bitmap var3) throws BaseException;
+    public static native float[] runModelSync(long j, JniParam jniParam, Bitmap bitmap) throws BaseException;
 
-	public static native int unloadModelSync(long var0);
+    public static native int unloadModelSync(long j);
 
-	public static native void deactivateInstance(Context var0);
-
-	public native String getStatJson(String var1);
+    public native String getStatJson(String str);
 }

@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.detect;
 
 import android.content.Context;
@@ -14,22 +9,22 @@ import java.util.List;
 
 @Deprecated
 public class DetectOnline extends a implements DetectInterface {
-	public DetectOnline(String var1, String var2, String var3, Context var4) {
-		super(var1, var2, var3);
-	}
+    public DetectOnline(String str, String str2, String str3, Context context) {
+        super(str, str2, str3);
+    }
 
-	public List<DetectionResultModel> detect(Bitmap var1, float var2) throws BaseException {
-		return null;
-	}
+    public void destroy() throws BaseException {
+    }
 
-	public List<DetectionResultModel> detect(Bitmap var1) throws BaseException {
-		return null;
-	}
+    public List<DetectionResultModel> detect(Bitmap bitmap) throws BaseException {
+        return null;
+    }
 
-	public IStatisticsResultModel detectPro(Bitmap var1) throws BaseException {
-		return null;
-	}
+    public List<DetectionResultModel> detect(Bitmap bitmap, float f) throws BaseException {
+        return null;
+    }
 
-	public void destroy() throws BaseException {
-	}
+    public IStatisticsResultModel detectPro(Bitmap bitmap) throws BaseException {
+        return null;
+    }
 }

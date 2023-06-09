@@ -1,32 +1,27 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.util;
 
 public class TimeRecorderNew {
-	private long a;
+    private long a;
 
-	public TimeRecorderNew() {
-		this.restart();
-	}
+    public TimeRecorderNew() {
+        restart();
+    }
 
-	public void restart() {
-		this.a = System.currentTimeMillis();
-	}
+    public long checkpoint() {
+        return checkpoint(System.currentTimeMillis());
+    }
 
-	public long checkpoint() {
-		return this.checkpoint(System.currentTimeMillis());
-	}
+    public long checkpoint(long j) {
+        long j2 = j - this.a;
+        this.a = j;
+        return j2;
+    }
 
-	public long checkpoint(long var1) {
-		long var10000 = var1 - this.a;
-		this.a = var1;
-		return var10000;
-	}
+    public long end() {
+        return System.currentTimeMillis() - this.a;
+    }
 
-	public long end() {
-		return System.currentTimeMillis() - this.a;
-	}
+    public void restart() {
+        this.a = System.currentTimeMillis();
+    }
 }

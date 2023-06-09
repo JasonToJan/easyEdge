@@ -1,35 +1,27 @@
-// Decompiled by Jad v1.5.8e2. Copyright 2001 Pavel Kouznetsov.
-// Jad home page: http://kpdus.tripod.com/jad.html
-// Decompiler options: packimports(3) fieldsfirst ansi space 
-// Source File Name:   
-
 package com.baidu.ai.edge.core.base;
 
+public interface IBaseConfig {
+    String getAuthDomain();
 
-public interface IBaseConfig
-{
+    long getAuthInterval();
 
-	public abstract int getMid();
+    String getAuthMode();
 
-	public abstract int getRid();
+    String getDeviceLicenseUri();
 
-	public abstract String getProduct();
+    int getMid();
 
-	public abstract String getSoc();
+    String getModelFileAssetPath();
 
-	public abstract String getModelFileAssetPath();
+    String getProduct();
 
-	public abstract void setModelFileAssetPath(String s);
+    int getRid();
 
-	public abstract boolean isAcceleration();
+    String getSoc();
 
-	public abstract String getUserDeviceId();
+    String getUserDeviceId();
 
-	public abstract String getAuthMode();
+    boolean isAcceleration();
 
-	public abstract long getAuthInterval();
-
-	public abstract String getAuthDomain();
-
-	public abstract String getDeviceLicenseUri();
+    void setModelFileAssetPath(String str);
 }

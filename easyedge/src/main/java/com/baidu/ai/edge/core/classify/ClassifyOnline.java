@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.baidu.ai.edge.core.classify;
 
 import android.content.Context;
@@ -14,22 +9,22 @@ import java.util.List;
 
 @Deprecated
 public class ClassifyOnline extends a implements ClassifyInterface {
-	public ClassifyOnline(String var1, String var2, String var3, Context var4) {
-		super(var1, var2, var3);
-	}
+    public ClassifyOnline(String str, String str2, String str3, Context context) {
+        super(str, str2, str3);
+    }
 
-	public List<ClassificationResultModel> classify(Bitmap var1) throws BaseException {
-		return null;
-	}
+    public List<ClassificationResultModel> classify(Bitmap bitmap) throws BaseException {
+        return null;
+    }
 
-	public List<ClassificationResultModel> classify(Bitmap var1, float var2) throws BaseException {
-		return null;
-	}
+    public List<ClassificationResultModel> classify(Bitmap bitmap, float f) throws BaseException {
+        return null;
+    }
 
-	public e classifyPro(Bitmap var1) throws BaseException {
-		return null;
-	}
+    public e classifyPro(Bitmap bitmap) throws BaseException {
+        return null;
+    }
 
-	public void destroy() throws BaseException {
-	}
+    public void destroy() throws BaseException {
+    }
 }
